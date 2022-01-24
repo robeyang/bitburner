@@ -1,3 +1,10 @@
 # bitburner
 
-Just put h.js, h_4g.js and show_hosts.js into your console home, and execute command 'run h.js' in your "Terminal".
+```SHELL
+wget https://raw.githubusercontent.com/robeyang/bitburner/main/h.js h.js
+wget https://raw.githubusercontent.com/robeyang/bitburner/main/h4g.js h4g.js
+wget https://raw.githubusercontent.com/robeyang/bitburner/main/show_hosts.js show_hosts.js
+run h.js
+run show_hosts.js -h
+```
+
