@@ -41,6 +41,7 @@ export function main(ns) {
 
 		if (command === '-s') {
 			target_host = ns.args.shift();
+			show_hacked = false;
 		}
 
 		if (command === '-a') {
