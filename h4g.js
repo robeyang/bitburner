@@ -2,13 +2,13 @@
 /** @param {import(".").NS } ns */
 // version: 2022-01-24 v1
 // GLOBALS
-var debug = false;
+var debug = true;
 var hostRooted = [];
 var hostUnRooted = [];
 var hostRootedWithZeroMoney = [];
-var script_main = "h.js";
+var script_name = "h.js";
 var script_4g = "h4g.js"
-var fileList = [script_main, script_4g];
+var fileList = [script_name, script_4g];
 var chanceToHack = 0.35;
 var runningTime = 1000*60*10; // 1 hour check once, and deploy me to hacked hosts
 
@@ -18,8 +18,6 @@ export async function main(ns) {
     while (true)
     {
         hostRooted = [];
-        hostUnRooted = [];
-        hostRootedWithZeroMoney = [];
         // hack neighbor servers first
         await exploitNeighbors(ns);
 
@@ -39,45 +37,34 @@ async function exploitNeighbors(ns)
         const target = hosts[i];
 		if (debug) ns.tprint("DEBUG: Processing host '" + target + "'.");
         if (target == "home") continue;
-        if (ns.hasRootAccess(target) == false) {
-            if (ns.getServerRequiredHackingLevel(target) > ns.getHackingLevel()) {
-                hostUnRooted.push(target);
-				if (debug) ns.tprint("DEBUG: Unrooted host added '" + target + "'.");
-                continue;
-            }
-			if (ns.fileExists("BruteSSH.exe", "home")) {
-				ns.brutessh(target);
-			}
-			if (ns.fileExists("FTPCrack.exe", "home")) {
-				ns.ftpcrack(target);
-			}
-			if (ns.fileExists("HTTPWorm.exe", "home")) {
-				ns.httpworm(target);
-			}
-			if (ns.fileExists("SQLInject.exe", "home")) {
-				ns.sqlinject(target);
-			}
-			if (ns.fileExists("relaySMTP.exe", "home")) {
-				ns.relaysmtp(target);
-			}
-            try {
-			    ns.nuke(target);
-                /*
-                if (ns.getServerMaxRam(target) >= 32) {
-                    ns.installBackdoor(target); // Need 32GB RAM
-                }
-                */
-            } catch (error) {
-                ns.tprint("ERROR: nuke('" + target + "') failed.");
-                ns.tprint("Error Description: " + error + "\n\n");
-            }
-        } // if ns.hasRootAccess
 
-        if (ns.getServerMaxMoney(target) != 0 ) { 
-            // rooted and has money
-            hostRooted.push(target);
-            if (debug) ns.tprint("DEBUG: Rooted with Money host added '" + target + "'.");
+        /*
+        if (ns.fileExists("FTPCrack.exe", "home")) {
+            ns.ftpcrack(target);
         }
+        if (ns.fileExists("HTTPWorm.exe", "home")) {
+            ns.httpworm(target);
+        }
+        if (ns.fileExists("SQLInject.exe", "home")) {
+            ns.sqlinject(target);
+        }
+        if (ns.fileExists("relaySMTP.exe", "home")) {
+            ns.relaysmtp(target);
+        }
+        */
+        try {
+			ns.brutessh(target);
+            ns.nuke(target);
+        } catch (error) {
+            ns.tprint("ERROR: nuke('" + target + "') failed.");
+            ns.tprint("Error Description: " + error + "\n\n");
+        }
+
+        // if (ns.getServerMaxMoney(target) != 0 ) { 
+            // rooted and has money
+        // hostRooted.push(target);
+        //    if (debug) ns.tprint("DEBUG: Rooted with Money host added '" + target + "'.");
+        //}
         
         // checking if target is running me.
 //        var scripts = ns.ps(target);
@@ -98,10 +85,10 @@ async function exploitNeighbors(ns)
         if (ns.getServerMaxRam(target) <= 4) {
             script_exec = script_4g;
         } else {
-            script_exec = script_main;
+            script_exec = script_name;
         }
         ns.exec(script_exec, target);
-        if (debug) ns.tprint("DEBUG: Executing script '" + script_main+ "' on '" + target + "'.");
+        if (debug) ns.tprint("DEBUG: Executing script '" + script_exec+ "' on '" + target + "'.");
     } // for
 }
 
@@ -117,27 +104,23 @@ async function hackme(ns)
             break;
         }
         
-    	var maxRam = ns.getServerMaxRam(target);
-        var h_threads = maxRam / 8;
-        // disable below line if hacked servers have multiple cores.
-        h_threads = 1;
-        
         /*
+    	var maxRam = ns.getServerMaxRam(target);
 		var maxMoney = ns.getServerMaxMoney(target);
 	    var counts = Math.ceil(ns.growthAnalyze(target, maxMoney / ns.getServerMoneyAvailable(target)));
 
         while (counts--) {
            await ns.grow(target);
         }
-        */
 
 		var chanceHack = ns.hackAnalyzeChance(target);
 		while (chanceHack < chanceToHack)
 		{
-			await ns.weaken(target, { threads: h_threads });
+			await ns.weaken(target);
 		}
+        */
         
-		let earnedMoney = await ns.hack(target, { threads: h_threads });
+		let earnedMoney = await ns.hack(target);
 		// ns.tprint(target + "\t: maxMoney " + maxMoney + "\t; hacked Money: " + earnedMoney);
 	}
     if (debug) ns.tprint("DEBUG: host '" + ns.getHostname() + "' exit hackme() loop.");
